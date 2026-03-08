@@ -46,15 +46,39 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
-    // If user is logged in, redirect away from auth pages
-    if (
-        user &&
-        (request.nextUrl.pathname.startsWith('/login') ||
-            request.nextUrl.pathname.startsWith('/signup'))
-    ) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/'
-        return NextResponse.redirect(url)
+    if (user) {
+        // Allow auth callbacks to proceed
+        if (request.nextUrl.pathname.startsWith('/auth')) {
+            return supabaseResponse
+        }
+
+        // Fetch role
+        const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+
+        const role = roleData?.role || 'patient'
+        const path = request.nextUrl.pathname
+
+        if (role === 'admin' && !path.startsWith('/admin')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/admin'
+            return NextResponse.redirect(url)
+        }
+
+        if (role === 'doctor' && !path.startsWith('/doctor')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/doctor'
+            return NextResponse.redirect(url)
+        }
+
+        if (role === 'patient' && !path.startsWith('/patient')) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/patient'
+            return NextResponse.redirect(url)
+        }
     }
 
     return supabaseResponse

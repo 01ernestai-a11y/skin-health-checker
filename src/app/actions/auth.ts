@@ -49,6 +49,12 @@ export async function signup(formData: FormData) {
     }
 
     if (authData.user) {
+        const { error: roleError } = await supabase.from('user_roles').insert({
+            id: authData.user.id,
+            role: 'patient'
+        })
+        if (roleError) console.error("Role insert error:", roleError)
+
         const { error: dbError } = await supabase.from('patients').insert({
             id: authData.user.id,
             name,
