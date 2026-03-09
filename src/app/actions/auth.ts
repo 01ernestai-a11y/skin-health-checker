@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
 
 export async function login(formData: FormData) {
@@ -9,7 +10,7 @@ export async function login(formData: FormData) {
 
     // Keep only digits for the internal email
     const cleanPhone = phone.replace(/\D/g, '')
-    const email = `${cleanPhone}@patient.local`
+    const email = `${cleanPhone}@skinchecker.local`
 
     const supabase = await createClient()
 
@@ -34,7 +35,7 @@ export async function signup(formData: FormData) {
     const password = formData.get('password') as string
 
     const cleanPhone = phone.replace(/\D/g, '')
-    const email = `${cleanPhone}@patient.local`
+    const email = `${cleanPhone}@skinchecker.local`
 
     const supabase = await createClient()
 
@@ -49,14 +50,22 @@ export async function signup(formData: FormData) {
     }
 
     if (authData.user) {
-        const { error: roleError } = await supabase.from('user_roles').insert({
-            id: authData.user.id,
+        const userId = authData.user.id
+        const supabaseAdmin = createAdminClient()
+
+        const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
+            id: userId,
             role: 'patient'
         })
-        if (roleError) console.error("Role insert error:", roleError)
 
-        const { error: dbError } = await supabase.from('patients').insert({
-            id: authData.user.id,
+        if (roleError) {
+            console.error("Role insert error:", roleError)
+            await supabaseAdmin.auth.admin.deleteUser(userId)
+            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}`)
+        }
+
+        const { error: dbError } = await supabaseAdmin.from('patients').insert({
+            id: userId,
             name,
             surname,
             year_of_birth: year,
@@ -66,6 +75,7 @@ export async function signup(formData: FormData) {
 
         if (dbError) {
             console.error("Patient insert error:", dbError)
+            await supabaseAdmin.auth.admin.deleteUser(userId)
             return redirect(`/signup?error=${encodeURIComponent(dbError.message)}`)
         }
     }

@@ -1,9 +1,20 @@
 'use client'
 
 import { useState, ChangeEvent } from 'react'
+import { Input } from '@/components/ui/input'
 
-export function PhoneInput({ name, required = true }: { name: string, required?: boolean }) {
-    const [value, setValue] = useState('+7 ')
+export function PhoneInput({
+    name,
+    required = true,
+    value,
+    onChange
+}: {
+    name?: string,
+    required?: boolean,
+    value?: string,
+    onChange?: (val: string) => void
+}) {
+    const [internalValue, setInternalValue] = useState('+7 ')
 
     const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
         let input = e.target.value.replace(/\D/g, '')
@@ -26,19 +37,22 @@ export function PhoneInput({ name, required = true }: { name: string, required?:
             formatted += '-' + input.substring(9, 11)
         }
 
-        setValue(formatted)
+        if (onChange) {
+            onChange(formatted)
+        } else {
+            setInternalValue(formatted)
+        }
     }
 
     return (
-        <input
+        <Input
             type="tel"
             name={name}
             id={name}
-            value={value}
+            value={value !== undefined ? value : internalValue}
             onChange={handlePhoneChange}
             placeholder="+7 (___) ___-__-__"
             required={required}
-            className="mt-1 block w-full rounded-md border-gray-300 bg-white/5 border px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             maxLength={18}
         />
     )
