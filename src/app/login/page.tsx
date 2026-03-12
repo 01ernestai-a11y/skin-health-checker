@@ -1,5 +1,7 @@
 import { login } from '@/app/actions/auth'
 import { PhoneInput } from '@/components/PhoneInput'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
@@ -29,23 +31,19 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
                             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                                 Password
                             </label>
-                            <input
+                            <Input
                                 id="password"
                                 name="password"
                                 type="password"
                                 required
-                                className="mt-1 block w-full rounded-md border-gray-300 bg-white/5 border px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <button
-                            type="submit"
-                            className="group relative flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
+                        <Button className="w-full" type="submit">
                             Sign in
-                        </button>
+                        </Button>
                     </div>
                 </form>
                 <div className="text-center text-sm">

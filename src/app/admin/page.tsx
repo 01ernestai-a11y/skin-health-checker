@@ -46,7 +46,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={onSubmit} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">First Name</Label>
                                 <Input id="name" name="name" required placeholder="Ivan" />
