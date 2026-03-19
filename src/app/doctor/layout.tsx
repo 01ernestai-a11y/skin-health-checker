@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import { Button } from '@/components/ui/button'
-import { LogOut, Users, MessageSquareText } from 'lucide-react'
+import { LogOut, Users, MessageSquareText, Globe } from 'lucide-react'
 
 export default function DoctorLayout({
     children,
@@ -16,6 +16,7 @@ export default function DoctorLayout({
     const navItems = [
         { name: 'Patient Base', href: '/doctor', icon: Users },
         { name: 'Consultations', href: '/doctor/chats', icon: MessageSquareText },
+        { name: 'Community Forum', href: '/doctor/forum', icon: Globe },
     ]
 
     return (

@@ -46,7 +46,7 @@ export async function signup(formData: FormData) {
 
     // Next steps after signup: insert into patients table
     if (authError) {
-        return redirect(`/signup?error=${encodeURIComponent(authError.message)}`)
+        return redirect(`/signup?error=${encodeURIComponent(authError.message)}&tab=patient`)
     }
 
     if (authData.user) {
@@ -61,7 +61,7 @@ export async function signup(formData: FormData) {
         if (roleError) {
             console.error("Role insert error:", roleError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}`)
+            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}&tab=patient`)
         }
 
         const { error: dbError } = await supabaseAdmin.from('patients').insert({
@@ -76,11 +76,70 @@ export async function signup(formData: FormData) {
         if (dbError) {
             console.error("Patient insert error:", dbError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(dbError.message)}`)
+            return redirect(`/signup?error=${encodeURIComponent(dbError.message)}&tab=patient`)
         }
     }
 
     return redirect('/')
+}
+
+export async function signupDoctor(formData: FormData) {
+    const name = formData.get('name') as string
+    const surname = formData.get('surname') as string
+    const specialization = formData.get('specialization') as string
+    const education = formData.get('education') as string
+    const experience_years = parseInt(formData.get('experience_years') as string, 10) || 0
+    const phone = formData.get('phone') as string
+    const password = formData.get('password') as string
+
+    const cleanPhone = phone.replace(/\D/g, '')
+    const email = `${cleanPhone}@skinchecker.local`
+
+    const supabase = await createClient()
+
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+    })
+
+    if (authError) {
+        return redirect(`/signup?error=${encodeURIComponent(authError.message)}&tab=doctor`)
+    }
+
+    if (authData.user) {
+        const userId = authData.user.id
+        const supabaseAdmin = createAdminClient()
+
+        const { error: roleError } = await supabaseAdmin.from('user_roles').insert({
+            id: userId,
+            role: 'doctor'
+        })
+
+        if (roleError) {
+            console.error("Role insert error:", roleError)
+            await supabaseAdmin.auth.admin.deleteUser(userId)
+            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}&tab=doctor`)
+        }
+
+        const { error: dbError } = await supabaseAdmin.from('doctors').insert({
+            id: userId,
+            name,
+            surname,
+            specialization,
+            education,
+            experience_years,
+            is_verified: false,
+        })
+
+        if (dbError) {
+            console.error("Doctor insert error:", dbError)
+            await supabaseAdmin.auth.admin.deleteUser(userId)
+            return redirect(`/signup?error=${encodeURIComponent(dbError.message)}&tab=doctor`)
+        }
+    }
+
+    // Redirect to login or a pending page
+    return redirect('/login?message=Doctor account created. Pending admin verification.')
 }
 
 export async function logout() {

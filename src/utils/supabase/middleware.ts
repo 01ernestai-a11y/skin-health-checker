@@ -68,10 +68,27 @@ export async function updateSession(request: NextRequest) {
             return NextResponse.redirect(url)
         }
 
-        if (role === 'doctor' && !path.startsWith('/doctor')) {
-            const url = request.nextUrl.clone()
-            url.pathname = '/doctor'
-            return NextResponse.redirect(url)
+        if (role === 'doctor') {
+            const { data: docData } = await supabase
+                .from('doctors')
+                .select('is_verified')
+                .eq('id', user.id)
+                .single()
+
+            if (docData && !docData.is_verified) {
+                if (!path.startsWith('/pending')) {
+                    const url = request.nextUrl.clone()
+                    url.pathname = '/pending'
+                    return NextResponse.redirect(url)
+                }
+                return supabaseResponse
+            } else {
+                if (!path.startsWith('/doctor')) {
+                    const url = request.nextUrl.clone()
+                    url.pathname = '/doctor'
+                    return NextResponse.redirect(url)
+                }
+            }
         }
 
         if (role === 'patient' && !path.startsWith('/patient')) {

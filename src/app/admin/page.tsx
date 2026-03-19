@@ -58,8 +58,19 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="specialization">Specialization</Label>
-                            <Input id="specialization" name="specialization" required placeholder="e.g. Dermatologist" />
+                            <Label htmlFor="education">Education / University</Label>
+                            <Input id="education" name="education" required placeholder="e.g. Asfendiyarov KazNMU" />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="specialization">Specialization</Label>
+                                <Input id="specialization" name="specialization" required placeholder="e.g. Dermatologist" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="experience">Years of Experience</Label>
+                                <Input id="experience" name="experience_years" type="number" min="0" required placeholder="5" />
+                            </div>
                         </div>
 
                         <div className="space-y-2">

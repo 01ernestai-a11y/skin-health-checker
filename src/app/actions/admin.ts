@@ -7,6 +7,8 @@ export async function createDoctor(formData: FormData) {
     const name = formData.get('name') as string
     const surname = formData.get('surname') as string
     const specialization = formData.get('specialization') as string
+    const education = formData.get('education') as string
+    const experience_years = parseInt(formData.get('experience_years') as string, 10) || 0
     const phone = formData.get('phone') as string
     const password = formData.get('password') as string
 
@@ -46,7 +48,10 @@ export async function createDoctor(formData: FormData) {
         id: userId,
         name,
         surname,
-        specialization
+        specialization,
+        education,
+        experience_years,
+        is_verified: true, // Created by admin, so pre-verified
     })
 
     if (docError) {
@@ -55,5 +60,48 @@ export async function createDoctor(formData: FormData) {
     }
 
     revalidatePath('/admin')
+    return { success: true }
+}
+
+export async function verifyDoctor(doctorId: string) {
+    const supabaseAdmin = createAdminClient()
+    const { error } = await supabaseAdmin
+        .from('doctors')
+        .update({ is_verified: true })
+        .eq('id', doctorId)
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    revalidatePath('/admin/doctors')
+    return { success: true }
+}
+
+export async function deleteDoctor(doctorId: string) {
+    const supabaseAdmin = createAdminClient()
+    
+    // Deleting the user from auth.users cascades to everything else (doctors, user_roles, etc.) if keys are configured.
+    // If no cascade, we manually remove. To be safe, we delete auth user which often handles it.
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(doctorId)
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    revalidatePath('/admin/doctors')
+    return { success: true }
+}
+
+export async function deletePatient(patientId: string) {
+    const supabaseAdmin = createAdminClient()
+    
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(patientId)
+
+    if (error) {
+        return { error: error.message }
+    }
+
+    revalidatePath('/admin/patients')
     return { success: true }
 }
