@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -80 /Users/beimbetmaratov/Development/AI-skin-checker/src/app/patient/chats/[id]/page.tsx)",
+      "Bash(node migrate8.mjs)"
+    ]
+  }
+}

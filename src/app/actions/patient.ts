@@ -77,7 +77,7 @@ export async function getPatientChats() {
     // Join with doctors table to get doctor name
     const { data, error } = await supabase
         .from('chats')
-        .select('id, doctor_id, doctors(name, surname, specialization), updated_at:created_at')
+        .select('id, doctor_id, doctors!chats_doctor_id_fkey(name, surname, specialization), updated_at:created_at')
         .eq('patient_id', user.id)
         .order('created_at', { ascending: false })
 
@@ -101,18 +101,21 @@ export async function getChatMessages(chatId: string) {
 
 import { revalidatePath } from 'next/cache'
 
-export async function sendMessage(chatId: string, content: string, path: string) {
+export async function sendMessage(chatId: string, content: string, path: string, imageUrl?: string) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Unauthorized' }
 
+    const row: Record<string, unknown> = {
+        chat_id: chatId,
+        sender_id: user.id,
+        content,
+    }
+    if (imageUrl) row.image_url = imageUrl
+
     const { error } = await supabase
         .from('messages')
-        .insert({
-            chat_id: chatId,
-            sender_id: user.id,
-            content
-        })
+        .insert(row)
 
     if (error) return { error: error.message }
 
