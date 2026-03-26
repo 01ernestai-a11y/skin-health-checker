@@ -21,6 +21,7 @@
     },
     "landing": {
         "getStarted": "Get Started",
+        "dashboard": "Go to Dashboard",
         "badge": "AI-Powered Diagnostics",
         "heroTitle1": "Your Skin,",
         "heroTitle2": "Analyzed by AI",

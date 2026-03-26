@@ -21,6 +21,7 @@
     },
     "landing": {
         "getStarted": "Начать",
+        "dashboard": "Перейти в панель",
         "badge": "AI-диагностика",
         "heroTitle1": "Ваша кожа,",
         "heroTitle2": "Анализ с помощью ИИ",

@@ -1,5 +1,6 @@
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
+import { createClient } from '@/utils/supabase/server'
 import {
     Activity,
     Upload,
@@ -23,6 +24,21 @@ export default async function LandingPage() {
     const t = await getTranslations('landing')
     const tc = await getTranslations('common')
 
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    let dashboardHref = '/patient'
+    if (user) {
+        const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+        const role = roleData?.role || 'patient'
+        if (role === 'admin') dashboardHref = '/admin'
+        else if (role === 'doctor') dashboardHref = '/doctor'
+    }
+
     return (
         <div className="min-h-screen bg-white text-slate-900 overflow-hidden">
             {/* ───── NAV ───── */}
@@ -37,18 +53,29 @@ export default async function LandingPage() {
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Link
-                            href="/login"
-                            className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2"
-                        >
-                            {tc('signIn')}
-                        </Link>
-                        <Link
-                            href="/signup"
-                            className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-all px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30"
-                        >
-                            {t('getStarted')}
-                        </Link>
+                        {user ? (
+                            <Link
+                                href={dashboardHref}
+                                className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-all px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30"
+                            >
+                                {t('dashboard')}
+                            </Link>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-4 py-2"
+                                >
+                                    {tc('signIn')}
+                                </Link>
+                                <Link
+                                    href="/signup"
+                                    className="text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition-all px-5 py-2.5 rounded-xl shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30"
+                                >
+                                    {t('getStarted')}
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </nav>

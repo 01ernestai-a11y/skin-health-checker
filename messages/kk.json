@@ -21,6 +21,7 @@
     },
     "landing": {
         "getStarted": "Бастау",
+        "dashboard": "Панельге өту",
         "badge": "AI-диагностика",
         "heroTitle1": "Сіздің теріңіз,",
         "heroTitle2": "AI арқылы талдау",
