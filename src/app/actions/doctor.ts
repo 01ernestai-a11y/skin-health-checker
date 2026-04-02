@@ -32,7 +32,7 @@ export async function getDoctorPatients() {
 export async function getDoctorChats() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+    if (!user) return { data: null, userId: null, error: 'Unauthorized' }
 
     const { data, error } = await supabase
         .from('chats')
@@ -41,8 +41,22 @@ export async function getDoctorChats() {
         .eq('type', 'patient_doctor')
         .order('created_at', { ascending: false })
 
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
+    if (error) return { data: null, userId: null, error: error.message }
+
+    const enriched = await Promise.all(
+        (data || []).map(async (chat: any) => {
+            const { data: lastMsg } = await supabase
+                .from('messages')
+                .select('content, created_at, sender_id, image_url')
+                .eq('chat_id', chat.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+            return { ...chat, lastMessage: lastMsg }
+        })
+    )
+
+    return { data: enriched, userId: user.id, error: null }
 }
 
 export async function getPatientHealthChecks(patientId: string) {
@@ -120,7 +134,7 @@ export async function createOrGetDoctorChat(otherDoctorId: string) {
 export async function getDoctorToDoctorChats() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+    if (!user) return { data: null, userId: null, error: 'Unauthorized' }
 
     const { data, error } = await supabase
         .from('chats')
@@ -129,29 +143,33 @@ export async function getDoctorToDoctorChats() {
         .or(`doctor_id.eq.${user.id},doctor2_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
 
-    if (error) return { data: null, error: error.message }
+    if (error) return { data: null, userId: null, error: error.message }
 
-    // For each chat, we need to get the OTHER doctor's info
-    // If doctor_id is me, the other is doctor2_id (need separate query)
-    // If doctor2_id is me, the other is doctor_id (already joined as 'doctors')
     const enrichedChats = await Promise.all(
         (data || []).map(async (chat: any) => {
-            const otherDoctorId = chat.doctor_id === user.id ? chat.doctor2_id : chat.doctor_id
-
+            let otherDoctor
             if (chat.doctor_id === user.id) {
-                // Need to fetch doctor2's info
                 const { data: doc2 } = await supabase
                     .from('doctors')
                     .select('name, surname, specialization')
                     .eq('id', chat.doctor2_id)
                     .single()
-                return { id: chat.id, otherDoctor: doc2, created_at: chat.created_at }
+                otherDoctor = doc2
             } else {
-                // doctor_id is the other doctor, already joined
-                return { id: chat.id, otherDoctor: chat.doctors, created_at: chat.created_at }
+                otherDoctor = chat.doctors
             }
+
+            const { data: lastMsg } = await supabase
+                .from('messages')
+                .select('content, created_at, sender_id, image_url')
+                .eq('chat_id', chat.id)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single()
+
+            return { id: chat.id, otherDoctor, lastMessage: lastMsg, created_at: chat.created_at }
         })
     )
 
-    return { data: enrichedChats, error: null }
+    return { data: enrichedChats, userId: user.id, error: null }
 }

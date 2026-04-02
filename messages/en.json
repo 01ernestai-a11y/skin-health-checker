@@ -136,7 +136,19 @@
         "profileSuccess": "Profile updated successfully",
         "updated": "Updated",
         "startChat": "Start Chat",
-        "chatError": "Could not start chat"
+        "chatError": "Could not start chat",
+        "askAI": "Ask AI about results",
+        "aiAssistant": "AI Dermatologist",
+        "aiChatPlaceholder": "Ask a question about your analysis...",
+        "aiChatThinking": "AI is thinking...",
+        "aiChatDisclaimer": "This is an AI assistant. Always consult a real doctor for medical decisions.",
+        "aiChatError": "Sorry, something went wrong. Please try again.",
+        "hasAIChat": "AI Chat",
+        "viewAIChat": "View AI Chat",
+        "hideAIChat": "Hide AI Chat",
+        "noChatHistory": "No AI conversation history yet.",
+        "shareWithDoctor": "Share with Doctor",
+        "sharedSuccess": "Results sent to the doctor's chat"
     },
     "doctor": {
         "portal": "Doctor Portal",
@@ -219,6 +231,9 @@
     },
     "chat": {
         "placeholder": "Type your message...",
-        "cameraError": "Could not access camera. Please check permissions."
+        "cameraError": "Could not access camera. Please check permissions.",
+        "newMessage": "New message",
+        "selectConversation": "Select a conversation",
+        "you": "You"
     }
 }

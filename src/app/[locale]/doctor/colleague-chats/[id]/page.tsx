@@ -1,13 +1,12 @@
 import { getChatMessages } from '@/app/actions/patient'
 import { createClient } from '@/utils/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { formatDistanceToNow } from 'date-fns'
 import { ChatInput } from '@/components/ChatInput'
 import { redirect } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { ChevronLeft } from 'lucide-react'
-import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
+import ChatMessage from '@/components/ChatMessage'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,35 +46,15 @@ export default async function DoctorColleagueChatRoomPage({ params }: { params: 
                             {t('doctorChatEmpty')}
                         </div>
                     ) : (
-                        messages.map((msg) => {
-                            const isMine = msg.sender_id === user.id
-                            return (
-                                <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${isMine
-                                        ? 'bg-slate-900 text-white rounded-br-sm'
-                                        : 'bg-white text-slate-900 border shadow-sm rounded-bl-sm'
-                                        }`}>
-                                        {msg.image_url && (
-                                            <a href={msg.image_url} target="_blank" rel="noopener noreferrer">
-                                                <Image
-                                                    src={msg.image_url}
-                                                    alt=""
-                                                    width={240}
-                                                    height={240}
-                                                    className="rounded-lg mb-1.5 max-w-[240px] h-auto"
-                                                />
-                                            </a>
-                                        )}
-                                        {msg.content && msg.content !== '📷' && (
-                                            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                                        )}
-                                        <span className={`text-[10px] mt-1 block ${isMine ? 'text-slate-300' : 'text-slate-400'}`}>
-                                            {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
-                                        </span>
-                                    </div>
-                                </div>
-                            )
-                        })
+                        messages.map((msg) => (
+                            <ChatMessage
+                                key={msg.id}
+                                content={msg.content}
+                                imageUrl={msg.image_url}
+                                createdAt={msg.created_at}
+                                isMine={msg.sender_id === user.id}
+                            />
+                        ))
                     )}
                 </CardContent>
 

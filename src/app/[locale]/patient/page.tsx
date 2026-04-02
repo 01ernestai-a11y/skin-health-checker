@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { analyzeSkinInitial, generateFinalVerdict } from '@/app/actions/checker'
 import { useTranslations } from 'next-intl'
-import { Upload, Loader2, CheckCircle2, AlertCircle, RefreshCw, Camera } from 'lucide-react'
+import { Upload, Loader2, CheckCircle2, AlertCircle, RefreshCw, Camera, Brain } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -12,8 +12,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import CameraCapture from '@/components/CameraCapture'
+import AIChatPanel from '@/components/AIChatPanel'
 
-type Step = 'UPLOAD' | 'ANALYSIS' | 'QUESTIONS' | 'VERDICT'
+type Step = 'UPLOAD' | 'ANALYSIS' | 'QUESTIONS' | 'VERDICT' | 'CHAT'
 
 export default function Home() {
   const t = useTranslations('patient')
@@ -22,6 +23,7 @@ export default function Home() {
   const [photoUrl, setPhotoUrl] = useState<string>('')
   const [initialReview, setInitialReview] = useState<string>('')
   const [verdict, setVerdict] = useState<string>('')
+  const [healthCheckId, setHealthCheckId] = useState<string>('')
   const [loading, setLoading] = useState(false)
 
   const [answers, setAnswers] = useState({
@@ -88,6 +90,7 @@ export default function Home() {
       const result = await generateFinalVerdict(photoUrl, initialReview, answers)
       if (result.success && result.verdict) {
         setVerdict(result.verdict)
+        if (result.healthCheckId) setHealthCheckId(result.healthCheckId)
         setStep('VERDICT')
       } else {
         alert("Error generating verdict: " + result.error)
@@ -247,7 +250,14 @@ export default function Home() {
                 </ReactMarkdown>
               </div>
             </CardContent>
-            <CardFooter className="bg-slate-50 border-t p-6 flex justify-center">
+            <CardFooter className="bg-slate-50 border-t p-6 flex flex-col sm:flex-row justify-center gap-3">
+              <Button
+                className="w-full sm:w-auto h-11"
+                onClick={() => setStep('CHAT')}
+              >
+                <Brain className="mr-2 h-4 w-4" />
+                {t('askAI')}
+              </Button>
               <Button
                 variant="outline"
                 className="w-full sm:w-auto h-11"
@@ -264,6 +274,23 @@ export default function Home() {
               </Button>
             </CardFooter>
           </>
+        )}
+
+        {step === 'CHAT' && (
+          <AIChatPanel
+            photoUrl={photoUrl}
+            initialReview={initialReview}
+            verdict={verdict}
+            healthCheckId={healthCheckId}
+            onReset={() => {
+              setStep('UPLOAD')
+              setPhotoUrl('')
+              setInitialReview('')
+              setVerdict('')
+              setHealthCheckId('')
+              setAnswers({ q1: '', q2: '', q3: '', q4: '', q5: '' })
+            }}
+          />
         )}
       </Card>
     </div>

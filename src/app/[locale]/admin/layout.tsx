@@ -25,9 +25,9 @@ export default function AdminLayout({
             <header className="border-b bg-white sticky top-0 z-10">
                 <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center gap-6">
-                        <h1 className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+                        <Link href="/" className="text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2 hover:opacity-80 transition-opacity">
                             <span>{t('portal')}</span>
-                        </h1>
+                        </Link>
 
                         <nav className="hidden md:flex items-center space-x-1 ml-6">
                             {navItems.map((item) => {

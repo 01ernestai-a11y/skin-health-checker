@@ -1,6 +1,7 @@
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 import { createClient } from '@/utils/supabase/server'
+import LanguageSwitcher from '@/components/LanguageSwitcher'
 import {
     Activity,
     Upload,
@@ -53,6 +54,7 @@ export default async function LandingPage() {
                         </span>
                     </div>
                     <div className="flex items-center gap-3">
+                        <LanguageSwitcher />
                         {user ? (
                             <Link
                                 href={dashboardHref}
