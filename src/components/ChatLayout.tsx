@@ -123,32 +123,36 @@ function ChatListItem({ chat, unread, currentUserId, isActive }: {
     }
 
     return (
-        <div className={`flex items-center gap-3 px-4 py-3 border-b transition-colors hover:bg-slate-50 ${isActive ? 'bg-indigo-50/70' : ''}`}>
-            <Avatar className="h-10 w-10 shrink-0 border">
-                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-sm">
-                    {chat.initials}
-                </AvatarFallback>
-            </Avatar>
+        <div className={`flex items-center gap-3 px-4 py-3 border-b transition-colors hover:bg-slate-50 ${
+            isActive ? 'bg-indigo-50/70' : unread > 0 ? 'bg-red-50/50' : ''
+        }`}>
+            <div className="relative shrink-0">
+                <Avatar className="h-10 w-10 border">
+                    <AvatarFallback className={`text-sm ${unread > 0 ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                        {chat.initials}
+                    </AvatarFallback>
+                </Avatar>
+                {unread > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-5 h-5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 ring-2 ring-white">
+                        {unread > 99 ? '99+' : unread}
+                    </span>
+                )}
+            </div>
             <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                     <span className={`text-sm truncate ${unread > 0 ? 'font-bold text-slate-900' : 'font-medium text-slate-800'}`}>
                         {chat.name}
                     </span>
                     {chat.lastMessage && (
-                        <span className="text-[10px] text-slate-400 shrink-0 ml-2">
+                        <span className={`text-[10px] shrink-0 ml-2 ${unread > 0 ? 'text-red-500 font-semibold' : 'text-slate-400'}`}>
                             {formatDistanceToNow(new Date(chat.lastMessage.created_at), { addSuffix: false })}
                         </span>
                     )}
                 </div>
                 <div className="flex items-center justify-between mt-0.5">
-                    <p className={`text-xs truncate ${unread > 0 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
+                    <p className={`text-xs truncate ${unread > 0 ? 'text-slate-900 font-semibold' : 'text-slate-500'}`}>
                         {preview || chat.subtitle || ''}
                     </p>
-                    {unread > 0 && (
-                        <span className="ml-2 min-w-5 h-5 flex items-center justify-center rounded-full bg-indigo-600 text-white text-[10px] font-bold px-1.5 shrink-0">
-                            {unread > 99 ? '99+' : unread}
-                        </span>
-                    )}
                 </div>
             </div>
         </div>
