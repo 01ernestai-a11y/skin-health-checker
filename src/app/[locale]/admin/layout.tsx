@@ -51,7 +51,7 @@ export default function AdminLayout({
 
                     <div className="flex items-center gap-1">
                         <LanguageSwitcher />
-                        <UserMenu />
+                        <UserMenu profileHref="/admin/profile" />
                     </div>
                 </div>
             </header>

@@ -17,7 +17,10 @@
         "failedToLoad": "Failed to load",
         "back": "Back",
         "skinHealth": "Skin Health",
-        "dr": "Dr."
+        "dr": "Dr.",
+        "uploadAvatar": "Upload Photo",
+        "takePhoto": "Take Photo",
+        "avatarUpdated": "Avatar updated"
     },
     "landing": {
         "getStarted": "Get Started",
@@ -153,6 +156,9 @@
     "doctor": {
         "portal": "Doctor Portal",
         "navPatients": "Patient Base",
+        "navChecker": "AI Checker",
+        "navCheckerHistory": "Checker History",
+        "checkerHistoryTitle": "AI Checker History",
         "navConsultations": "Consultations",
         "navColleagues": "Colleagues",
         "navDoctorChats": "Doctor Chats",
@@ -227,7 +233,15 @@
         "id": "ID",
         "birthYear": "Birth Year",
         "weight": "Weight",
-        "noPatients": "No patients found."
+        "noPatients": "No patients found.",
+        "telegramSettings": "Telegram Notifications",
+        "telegramDescription": "Get notified in Telegram when new doctors register and need verification.",
+        "botToken": "Bot Token",
+        "botTokenHint": "Get a bot token from @BotFather on Telegram",
+        "chatId": "Chat ID",
+        "chatIdHint": "Your personal chat ID. Use @userinfobot to find it.",
+        "testNotification": "Test Notification",
+        "testSent": "Test message sent successfully"
     },
     "chat": {
         "placeholder": "Type your message...",

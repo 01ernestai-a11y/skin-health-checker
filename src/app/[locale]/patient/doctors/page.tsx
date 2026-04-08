@@ -42,6 +42,7 @@ export default async function DoctorsPage() {
                             <Card key={doctor.id} className="flex flex-col">
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                                     <Avatar className="h-12 w-12 border">
+                                        {(doctor as any).avatar_url && <AvatarImage src={(doctor as any).avatar_url} alt={`Dr. ${doctor.name} ${doctor.surname}`} />}
                                         <AvatarFallback className="bg-indigo-100 text-indigo-700">
                                             {initials}
                                         </AvatarFallback>

@@ -1,6 +1,6 @@
 import { getVerifiedDoctors } from '@/app/actions/doctor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Stethoscope, GraduationCap, Briefcase } from 'lucide-react'
 import { StartDoctorChatButton } from '@/components/StartDoctorChatButton'
 import { getTranslations } from 'next-intl/server'
@@ -42,6 +42,7 @@ export default async function ColleaguesPage() {
                             <Card key={doctor.id} className="flex flex-col">
                                 <CardHeader className="flex flex-row items-center gap-4 pb-2">
                                     <Avatar className="h-12 w-12 border">
+                                        {doctor.avatar_url && <AvatarImage src={doctor.avatar_url} alt={`Dr. ${doctor.name} ${doctor.surname}`} />}
                                         <AvatarFallback className="bg-indigo-100 text-indigo-700">
                                             {initials}
                                         </AvatarFallback>

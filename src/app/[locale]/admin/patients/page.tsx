@@ -39,7 +39,6 @@ export default async function AdminPatientsPage() {
                                     <TableHead>{t('id')}</TableHead>
                                     <TableHead>{tCommon('name')}</TableHead>
                                     <TableHead>{t('birthYear')}</TableHead>
-                                    <TableHead>{t('weight')}</TableHead>
                                     <TableHead>Phone</TableHead>
                                     <TableHead className="text-right">{tCommon('actions')}</TableHead>
                                 </TableRow>
@@ -55,7 +54,6 @@ export default async function AdminPatientsPage() {
                                                 {patient.name} {patient.surname}
                                             </TableCell>
                                             <TableCell>{patient.year_of_birth}</TableCell>
-                                            <TableCell>{patient.weight} kg</TableCell>
                                             <TableCell>{patient.phone_number}</TableCell>
                                             <TableCell className="text-right">
                                                 <PatientActions patient={patient} />
@@ -64,7 +62,7 @@ export default async function AdminPatientsPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center text-slate-500">
+                                        <TableCell colSpan={5} className="h-24 text-center text-slate-500">
                                             {t('noPatients')}
                                         </TableCell>
                                     </TableRow>

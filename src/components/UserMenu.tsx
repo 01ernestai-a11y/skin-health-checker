@@ -1,10 +1,12 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useTransition, useEffect, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
-import { MoreVertical, User, LogOut } from 'lucide-react'
+import { User, LogOut } from 'lucide-react'
 import { logout } from '@/app/actions/auth'
+import { getMyAvatar } from '@/app/actions/profile'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -15,14 +17,29 @@ import {
 
 export default function UserMenu({ profileHref }: { profileHref?: string }) {
     const [isPending, startTransition] = useTransition()
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+    const [initials, setInitials] = useState<string>('')
     const t = useTranslations('common')
+
+    useEffect(() => {
+        getMyAvatar().then(({ avatarUrl, name, surname }) => {
+            setAvatarUrl(avatarUrl)
+            const i = `${name?.[0] || ''}${surname?.[0] || ''}`.toUpperCase() || 'U'
+            setInitials(i)
+        })
+    }, [])
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger
-                className="inline-flex items-center justify-center rounded-md p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900 transition-colors focus:outline-none"
+                className="inline-flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:opacity-90 transition-opacity"
             >
-                <MoreVertical className="h-5 w-5" />
+                <Avatar className="h-9 w-9 border-2 border-slate-200">
+                    {avatarUrl && <AvatarImage src={avatarUrl} alt="Avatar" />}
+                    <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">
+                        {initials || 'U'}
+                    </AvatarFallback>
+                </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8}>
                 {profileHref && (

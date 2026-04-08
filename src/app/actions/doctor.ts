@@ -10,7 +10,7 @@ export async function getDoctorPatients() {
     // A patient is connected to a doctor if they share a chat
     const { data: chats, error } = await supabase
         .from('chats')
-        .select('patient_id, patients(id, name, surname, year_of_birth, phone_number)')
+        .select('patient_id, patients(id, name, surname, year_of_birth, phone_number, avatar_url)')
         .eq('doctor_id', user.id)
         .eq('type', 'patient_doctor')
 
@@ -36,7 +36,7 @@ export async function getDoctorChats() {
 
     const { data, error } = await supabase
         .from('chats')
-        .select('id, patient_id, patients(name, surname), updated_at:created_at')
+        .select('id, patient_id, patients(name, surname, avatar_url), updated_at:created_at')
         .eq('doctor_id', user.id)
         .eq('type', 'patient_doctor')
         .order('created_at', { ascending: false })
@@ -57,6 +57,21 @@ export async function getDoctorChats() {
     )
 
     return { data: enriched, userId: user.id, error: null }
+}
+
+export async function getDoctorChecks() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: 'Unauthorized' }
+
+    const { data, error } = await supabase
+        .from('doctor_checks')
+        .select('*')
+        .eq('doctor_id', user.id)
+        .order('created_at', { ascending: false })
+
+    if (error) return { data: null, error: error.message }
+    return { data, error: null }
 }
 
 export async function getPatientHealthChecks(patientId: string) {
@@ -90,7 +105,7 @@ export async function getVerifiedDoctors() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('id, name, surname, specialization, education, experience_years')
+        .select('id, name, surname, specialization, education, experience_years, avatar_url')
         .eq('is_verified', true)
         .neq('id', user.id)
         .order('name', { ascending: true })
@@ -138,7 +153,7 @@ export async function getDoctorToDoctorChats() {
 
     const { data, error } = await supabase
         .from('chats')
-        .select('id, doctor_id, doctor2_id, doctors!chats_doctor_id_fkey(name, surname, specialization), created_at')
+        .select('id, doctor_id, doctor2_id, doctors!chats_doctor_id_fkey(name, surname, specialization, avatar_url), created_at')
         .eq('type', 'doctor_doctor')
         .or(`doctor_id.eq.${user.id},doctor2_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
@@ -151,7 +166,7 @@ export async function getDoctorToDoctorChats() {
             if (chat.doctor_id === user.id) {
                 const { data: doc2 } = await supabase
                     .from('doctors')
-                    .select('name, surname, specialization')
+                    .select('name, surname, specialization, avatar_url')
                     .eq('id', chat.doctor2_id)
                     .single()
                 otherDoctor = doc2

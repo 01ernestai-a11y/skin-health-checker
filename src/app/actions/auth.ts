@@ -3,34 +3,60 @@
 import { createClient } from '@/utils/supabase/server'
 import { createAdminClient } from '@/utils/supabase/admin'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
+import { notifyAdminsAboutNewDoctor } from '@/lib/telegram'
+
+async function getRoleRedirectPath(userId: string): Promise<string> {
+    const locale = await getLocale()
+    const supabase = await createClient()
+
+    const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+
+    const role = roleData?.role || 'patient'
+
+    if (role === 'admin') return `/${locale}/admin`
+    if (role === 'doctor') {
+        const { data: docData } = await supabase
+            .from('doctors')
+            .select('is_verified')
+            .eq('id', userId)
+            .single()
+        if (docData && !docData.is_verified) return `/${locale}/pending`
+        return `/${locale}/doctor`
+    }
+    return `/${locale}/patient`
+}
 
 export async function login(formData: FormData) {
     const phone = formData.get('phone') as string
     const password = formData.get('password') as string
 
-    // Keep only digits for the internal email
     const cleanPhone = phone.replace(/\D/g, '')
     const email = `${cleanPhone}@skinchecker.local`
 
     const supabase = await createClient()
+    const locale = await getLocale()
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
     })
 
-    if (error) {
-        return redirect(`/login?error=${encodeURIComponent(error.message)}`)
+    if (error || !data.user) {
+        return redirect(`/${locale}/login?error=${encodeURIComponent(error?.message || 'Login failed')}`)
     }
 
-    return redirect('/')
+    return redirect(await getRoleRedirectPath(data.user.id))
 }
 
 export async function signup(formData: FormData) {
     const name = formData.get('name') as string
     const surname = formData.get('surname') as string
     const year = parseInt(formData.get('year') as string, 10)
-    const weight = parseFloat(formData.get('weight') as string)
     const phone = formData.get('phone') as string
     const password = formData.get('password') as string
 
@@ -38,15 +64,15 @@ export async function signup(formData: FormData) {
     const email = `${cleanPhone}@skinchecker.local`
 
     const supabase = await createClient()
+    const locale = await getLocale()
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
     })
 
-    // Next steps after signup: insert into patients table
     if (authError) {
-        return redirect(`/signup?error=${encodeURIComponent(authError.message)}&tab=patient`)
+        return redirect(`/${locale}/signup?error=${encodeURIComponent(authError.message)}&tab=patient`)
     }
 
     if (authData.user) {
@@ -61,7 +87,7 @@ export async function signup(formData: FormData) {
         if (roleError) {
             console.error("Role insert error:", roleError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}&tab=patient`)
+            return redirect(`/${locale}/signup?error=${encodeURIComponent(roleError.message)}&tab=patient`)
         }
 
         const { error: dbError } = await supabaseAdmin.from('patients').insert({
@@ -69,18 +95,17 @@ export async function signup(formData: FormData) {
             name,
             surname,
             year_of_birth: year,
-            weight,
             phone_number: phone,
         })
 
         if (dbError) {
             console.error("Patient insert error:", dbError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(dbError.message)}&tab=patient`)
+            return redirect(`/${locale}/signup?error=${encodeURIComponent(dbError.message)}&tab=patient`)
         }
     }
 
-    return redirect('/')
+    return redirect(`/${locale}/patient`)
 }
 
 export async function signupDoctor(formData: FormData) {
@@ -96,6 +121,7 @@ export async function signupDoctor(formData: FormData) {
     const email = `${cleanPhone}@skinchecker.local`
 
     const supabase = await createClient()
+    const locale = await getLocale()
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
@@ -103,7 +129,7 @@ export async function signupDoctor(formData: FormData) {
     })
 
     if (authError) {
-        return redirect(`/signup?error=${encodeURIComponent(authError.message)}&tab=doctor`)
+        return redirect(`/${locale}/signup?error=${encodeURIComponent(authError.message)}&tab=doctor`)
     }
 
     if (authData.user) {
@@ -118,7 +144,7 @@ export async function signupDoctor(formData: FormData) {
         if (roleError) {
             console.error("Role insert error:", roleError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(roleError.message)}&tab=doctor`)
+            return redirect(`/${locale}/signup?error=${encodeURIComponent(roleError.message)}&tab=doctor`)
         }
 
         const { error: dbError } = await supabaseAdmin.from('doctors').insert({
@@ -134,16 +160,23 @@ export async function signupDoctor(formData: FormData) {
         if (dbError) {
             console.error("Doctor insert error:", dbError)
             await supabaseAdmin.auth.admin.deleteUser(userId)
-            return redirect(`/signup?error=${encodeURIComponent(dbError.message)}&tab=doctor`)
+            return redirect(`/${locale}/signup?error=${encodeURIComponent(dbError.message)}&tab=doctor`)
+        }
+
+        // Notify all admins via Telegram (non-blocking)
+        try {
+            await notifyAdminsAboutNewDoctor({ name, surname, specialization })
+        } catch (e) {
+            console.error('Telegram notify failed:', e)
         }
     }
 
-    // Redirect to login or a pending page
-    return redirect('/login?message=Doctor account created. Pending admin verification.')
+    return redirect(`/${locale}/pending`)
 }
 
 export async function logout() {
     const supabase = await createClient()
+    const locale = await getLocale()
     await supabase.auth.signOut()
-    return redirect('/login')
+    return redirect(`/${locale}/login`)
 }

@@ -25,6 +25,7 @@ export default async function DoctorChatsPage() {
             id: chat.id,
             name: `${patient.name || ''} ${patient.surname || ''}`.trim() || 'Patient',
             initials: patient.name ? `${patient.name[0]}${(patient.surname || '')[0] || ''}`.toUpperCase() : 'PT',
+            avatarUrl: patient.avatar_url || null,
             lastMessage: chat.lastMessage,
         }
     })

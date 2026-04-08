@@ -17,7 +17,10 @@
         "failedToLoad": "Жүктеу қатесі",
         "back": "Артқа",
         "skinHealth": "Skin Health",
-        "dr": "Др."
+        "dr": "Др.",
+        "uploadAvatar": "Фото жүктеу",
+        "takePhoto": "Фото түсіру",
+        "avatarUpdated": "Аватар жаңартылды"
     },
     "landing": {
         "getStarted": "Бастау",
@@ -153,6 +156,9 @@
     "doctor": {
         "portal": "Дәрігер порталы",
         "navPatients": "Пациенттер",
+        "navChecker": "AI тексеру",
+        "navCheckerHistory": "Тексеру тарихы",
+        "checkerHistoryTitle": "AI тексерулер тарихы",
         "navConsultations": "Консультациялар",
         "navColleagues": "Әріптестер",
         "navDoctorChats": "Дәрігер чаттары",
@@ -227,7 +233,15 @@
         "id": "ID",
         "birthYear": "Туған жылы",
         "weight": "Салмақ",
-        "noPatients": "Пациенттер табылмады."
+        "noPatients": "Пациенттер табылмады.",
+        "telegramSettings": "Telegram хабарландырулары",
+        "telegramDescription": "Жаңа дәрігерлер тіркелген кезде Telegram-да хабарландыру алыңыз.",
+        "botToken": "Бот токені",
+        "botTokenHint": "Telegram-да @BotFather арқылы бот токенін алыңыз",
+        "chatId": "Chat ID",
+        "chatIdHint": "Сіздің жеке chat ID. Анықтау үшін @userinfobot қолданыңыз.",
+        "testNotification": "Тест хабарлама",
+        "testSent": "Тест хабарлама сәтті жіберілді"
     },
     "chat": {
         "placeholder": "Хабарлама жазыңыз...",

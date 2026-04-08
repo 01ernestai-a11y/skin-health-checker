@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl'
 import UserMenu from '@/components/UserMenu'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import { NotificationProvider, useNotifications } from '@/components/NotificationProvider'
-import { Users, MessageSquareText, Globe, Stethoscope, MessageCircle } from 'lucide-react'
+import { Users, MessageSquareText, Globe, Stethoscope, MessageCircle, Activity, Clock } from 'lucide-react'
 
 export default function DoctorLayout({
     children,
@@ -26,6 +26,8 @@ function DoctorLayoutInner({ children }: { children: React.ReactNode }) {
 
     const navItems = [
         { name: t('navPatients'), href: '/doctor', icon: Users, badge: 0 },
+        { name: t('navChecker'), href: '/doctor/checker', icon: Activity, badge: 0 },
+        { name: t('navCheckerHistory'), href: '/doctor/checker/history', icon: Clock, badge: 0 },
         { name: t('navConsultations'), href: '/doctor/chats', icon: MessageSquareText, badge: totalUnread },
         { name: t('navColleagues'), href: '/doctor/colleagues', icon: Stethoscope, badge: 0 },
         { name: t('navDoctorChats'), href: '/doctor/colleague-chats', icon: MessageCircle, badge: 0 },

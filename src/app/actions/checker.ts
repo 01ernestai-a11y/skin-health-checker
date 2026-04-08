@@ -2,9 +2,25 @@
 
 import { GoogleGenAI } from '@google/genai'
 import { createClient } from '@/utils/supabase/server'
+import { getLocale } from 'next-intl/server'
 
-// Initialize Gemini
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API })
+
+const LOCALE_NAMES: Record<string, string> = {
+    en: 'English',
+    ru: 'Russian',
+    kk: 'Kazakh',
+}
+
+async function getLanguageInstruction(): Promise<string> {
+    try {
+        const locale = await getLocale()
+        const language = LOCALE_NAMES[locale] || 'English'
+        return `IMPORTANT: Always respond in ${language}. The patient/doctor speaks ${language}.\n\n`
+    } catch {
+        return ''
+    }
+}
 
 async function fetchImageAsBase64(url: string) {
     const response = await fetch(url)
@@ -17,6 +33,7 @@ async function fetchImageAsBase64(url: string) {
 export async function analyzeSkinInitial(photoUrl: string) {
     try {
         const { base64, mimeType } = await fetchImageAsBase64(photoUrl)
+        const langInstruction = await getLanguageInstruction()
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
@@ -24,7 +41,7 @@ export async function analyzeSkinInitial(photoUrl: string) {
                 {
                     role: 'user',
                     parts: [
-                        { text: "You are an expert dermatologist AI. Please conduct an initial visual review of this skin condition from the uploaded photo. Describe what you see objectively but do not make a final diagnosis yet." },
+                        { text: langInstruction + "You are an expert dermatologist AI. Please conduct an initial visual review of this skin condition from the uploaded photo. Describe what you see objectively but do not make a final diagnosis yet." },
                         { inlineData: { data: base64, mimeType } }
                     ]
                 }
@@ -38,16 +55,16 @@ export async function analyzeSkinInitial(photoUrl: string) {
     }
 }
 
-export async function generateFinalVerdict(
+async function generateVerdictRaw(
     photoUrl: string,
     initialReview: string,
     answers: Record<string, string>
-) {
+): Promise<{ success: true; verdict: string } | { success: false; error: string }> {
     try {
         const { base64, mimeType } = await fetchImageAsBase64(photoUrl)
+        const langInstruction = await getLanguageInstruction()
 
-        const prompt = `
-You are an expert dermatologist AI. You previously did an initial visual review of the provided photo:
+        const prompt = `${langInstruction}You are an expert dermatologist AI. You previously did an initial visual review of the provided photo:
 "${initialReview}"
 
 The patient has now answered 5 standard diagnostic questions:
@@ -72,35 +89,75 @@ Based on the photo and these answers, provide a final verdict on the disease. In
             ]
         })
 
-        const verdict = response.text
-
-        // Save to database
-        const supabase = await createClient()
-        const { data: { user } } = await supabase.auth.getUser()
-
-        let healthCheckId: string | undefined
-        if (user) {
-            const { data: inserted, error: dbError } = await supabase.from('health_checks').insert({
-                patient_id: user.id,
-                photo_url: photoUrl,
-                q1_answer: answers.q1,
-                q2_answer: answers.q2,
-                q3_answer: answers.q3,
-                q4_answer: answers.q4,
-                q5_answer: answers.q5,
-                ai_verdict: verdict
-            }).select('id').single()
-            if (dbError) {
-                console.error("Database Save Error:", dbError)
-            }
-            healthCheckId = inserted?.id
-        }
-
-        return { success: true, verdict, healthCheckId }
+        return { success: true, verdict: response.text || '' }
     } catch (error: any) {
-        console.error("Gemini Final Verdict Error:", error)
+        console.error("Gemini Verdict Error:", error)
         return { success: false, error: error.message }
     }
+}
+
+export async function generateFinalVerdict(
+    photoUrl: string,
+    initialReview: string,
+    answers: Record<string, string>
+) {
+    const result = await generateVerdictRaw(photoUrl, initialReview, answers)
+    if (!result.success) return result
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    let healthCheckId: string | undefined
+    if (user) {
+        const { data: inserted, error: dbError } = await supabase.from('health_checks').insert({
+            patient_id: user.id,
+            photo_url: photoUrl,
+            q1_answer: answers.q1,
+            q2_answer: answers.q2,
+            q3_answer: answers.q3,
+            q4_answer: answers.q4,
+            q5_answer: answers.q5,
+            ai_verdict: result.verdict
+        }).select('id').single()
+        if (dbError) {
+            console.error("Database Save Error:", dbError)
+        }
+        healthCheckId = inserted?.id
+    }
+
+    return { success: true as const, verdict: result.verdict, healthCheckId }
+}
+
+export async function generateFinalVerdictDoctor(
+    photoUrl: string,
+    initialReview: string,
+    answers: Record<string, string>
+) {
+    const result = await generateVerdictRaw(photoUrl, initialReview, answers)
+    if (!result.success) return result
+
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    let checkId: string | undefined
+    if (user) {
+        const { data: inserted, error: dbError } = await supabase.from('doctor_checks').insert({
+            doctor_id: user.id,
+            photo_url: photoUrl,
+            q1_answer: answers.q1,
+            q2_answer: answers.q2,
+            q3_answer: answers.q3,
+            q4_answer: answers.q4,
+            q5_answer: answers.q5,
+            ai_verdict: result.verdict
+        }).select('id').single()
+        if (dbError) {
+            console.error("Doctor check save error:", dbError)
+        }
+        checkId = inserted?.id
+    }
+
+    return { success: true as const, verdict: result.verdict, healthCheckId: checkId }
 }
 
 export async function chatWithAI(
@@ -111,14 +168,15 @@ export async function chatWithAI(
 ) {
     try {
         const { base64, mimeType } = await fetchImageAsBase64(photoUrl)
+        const langInstruction = await getLanguageInstruction()
 
-        const systemContext = `You are an expert dermatologist AI assistant. You previously analyzed a skin condition photo.
+        const systemContext = `${langInstruction}You are an expert dermatologist AI assistant. You previously analyzed a skin condition photo.
 
 Your initial visual review: "${initialReview}"
 
 Your final verdict: "${verdict}"
 
-The patient is now asking follow-up questions about the analysis. Answer helpfully and stay in context of the original analysis. If asked about unrelated topics, politely redirect to skin health. Always remind that this is AI advice and they should consult a real doctor for any medical decisions.`
+The user is now asking follow-up questions about the analysis. Answer helpfully and stay in context of the original analysis. If asked about unrelated topics, politely redirect to skin health. Always remind that this is AI advice and they should consult a real doctor for any medical decisions.`
 
         const contents = [
             {

@@ -17,7 +17,10 @@
         "failedToLoad": "Ошибка загрузки",
         "back": "Назад",
         "skinHealth": "Skin Health",
-        "dr": "Др."
+        "dr": "Др.",
+        "uploadAvatar": "Загрузить фото",
+        "takePhoto": "Сделать фото",
+        "avatarUpdated": "Аватар обновлён"
     },
     "landing": {
         "getStarted": "Начать",
@@ -153,6 +156,9 @@
     "doctor": {
         "portal": "Портал врача",
         "navPatients": "Пациенты",
+        "navChecker": "AI-проверка",
+        "navCheckerHistory": "История проверок",
+        "checkerHistoryTitle": "История AI-проверок",
         "navConsultations": "Консультации",
         "navColleagues": "Коллеги",
         "navDoctorChats": "Чаты врачей",
@@ -227,7 +233,15 @@
         "id": "ID",
         "birthYear": "Год рождения",
         "weight": "Вес",
-        "noPatients": "Пациенты не найдены."
+        "noPatients": "Пациенты не найдены.",
+        "telegramSettings": "Уведомления в Telegram",
+        "telegramDescription": "Получайте уведомления в Telegram, когда новые врачи регистрируются и ждут верификации.",
+        "botToken": "Токен бота",
+        "botTokenHint": "Получите токен бота у @BotFather в Telegram",
+        "chatId": "Chat ID",
+        "chatIdHint": "Ваш личный chat ID. Используйте @userinfobot для определения.",
+        "testNotification": "Тестовое уведомление",
+        "testSent": "Тестовое сообщение успешно отправлено"
     },
     "chat": {
         "placeholder": "Введите сообщение...",

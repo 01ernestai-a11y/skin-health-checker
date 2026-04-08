@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
+import { ChevronLeft } from 'lucide-react'
 
 export default async function LoginPage({ searchParams }: { searchParams: { error?: string } }) {
     const params = await searchParams
@@ -11,6 +12,13 @@ export default async function LoginPage({ searchParams }: { searchParams: { erro
     const tc = await getTranslations('common')
     return (
         <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            <Link
+                href="/"
+                className="fixed top-4 left-4 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white shadow-md hover:bg-gray-50 transition-colors text-gray-700"
+                aria-label="Back to landing"
+            >
+                <ChevronLeft className="h-5 w-5" />
+            </Link>
             <div className="w-full max-w-md space-y-8 rounded-xl bg-white p-10 shadow-lg">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">

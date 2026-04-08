@@ -6,7 +6,7 @@ import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { useNotifications } from '@/components/NotificationProvider'
 import ChatRoom from '@/components/ChatRoom'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MessageSquare } from 'lucide-react'
 
 export interface ChatSummary {
@@ -14,6 +14,7 @@ export interface ChatSummary {
     name: string
     subtitle?: string
     initials: string
+    avatarUrl?: string | null
     lastMessage?: {
         content: string
         created_at: string
@@ -90,6 +91,8 @@ export default function ChatLayout({ chats, currentUserId, linkPrefix, emptyText
                             chatId={activeChatId}
                             currentUserId={currentUserId}
                             title={activeChat?.name}
+                            avatarUrl={activeChat?.avatarUrl}
+                            initials={activeChat?.initials}
                         />
                     ) : (
                         <div className="flex-1 flex flex-col items-center justify-center text-slate-400 gap-3">
@@ -128,6 +131,7 @@ function ChatListItem({ chat, unread, currentUserId, isActive }: {
         }`}>
             <div className="relative shrink-0">
                 <Avatar className="h-10 w-10 border">
+                    {chat.avatarUrl && <AvatarImage src={chat.avatarUrl} alt={chat.name} />}
                     <AvatarFallback className={`text-sm ${unread > 0 ? 'bg-red-100 text-red-700' : 'bg-indigo-100 text-indigo-700'}`}>
                         {chat.initials}
                     </AvatarFallback>

@@ -1,6 +1,6 @@
 import { getDoctorPatients } from '@/app/actions/doctor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Link } from '@/i18n/navigation'
 import { User, Calendar, Phone } from 'lucide-react'
@@ -45,6 +45,7 @@ export default async function DoctorDashboard() {
                             <Card key={patient.id} className="flex flex-col">
                                 <CardHeader className="flex flex-row items-center gap-4 pb-4">
                                     <Avatar className="h-12 w-12 border bg-indigo-50">
+                                        {patient.avatar_url && <AvatarImage src={patient.avatar_url} alt={`${patient.name} ${patient.surname}`} />}
                                         <AvatarFallback className="text-indigo-700">
                                             {initials}
                                         </AvatarFallback>

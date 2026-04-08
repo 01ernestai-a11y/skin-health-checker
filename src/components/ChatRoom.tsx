@@ -7,15 +7,18 @@ import { useTranslations } from 'next-intl'
 import { useNotifications } from '@/components/NotificationProvider'
 import ChatMessage from '@/components/ChatMessage'
 import { ChatInput } from '@/components/ChatInput'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Loader2 } from 'lucide-react'
 
 interface ChatRoomProps {
     chatId: string
     currentUserId: string
     title?: string
+    avatarUrl?: string | null
+    initials?: string
 }
 
-export default function ChatRoom({ chatId, currentUserId, title }: ChatRoomProps) {
+export default function ChatRoom({ chatId, currentUserId, title, avatarUrl, initials }: ChatRoomProps) {
     const [messages, setMessages] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -69,7 +72,13 @@ export default function ChatRoom({ chatId, currentUserId, title }: ChatRoomProps
     return (
         <div className="flex flex-col h-full">
             {title && (
-                <div className="border-b bg-slate-50 py-3 px-4">
+                <div className="border-b bg-slate-50 py-3 px-4 flex items-center gap-3">
+                    <Avatar className="h-9 w-9 border">
+                        {avatarUrl && <AvatarImage src={avatarUrl} alt={title} />}
+                        <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs">
+                            {initials || title.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
                     <h3 className="font-semibold text-slate-800">{title}</h3>
                 </div>
             )}

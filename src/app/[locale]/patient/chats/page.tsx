@@ -26,6 +26,7 @@ export default async function ChatsPage() {
             name: doc ? `Dr. ${doc.name} ${doc.surname}` : 'Doctor',
             subtitle: doc?.specialization || '',
             initials: doc ? `${doc.name[0]}${doc.surname[0]}`.toUpperCase() : 'DR',
+            avatarUrl: doc?.avatar_url || null,
             lastMessage: chat.lastMessage,
         }
     })

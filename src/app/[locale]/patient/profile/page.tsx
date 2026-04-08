@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { Loader2, User, Phone } from 'lucide-react'
+import AvatarUpload from '@/components/AvatarUpload'
 
 export default function PatientProfilePage() {
     const t = useTranslations('patient')
@@ -52,9 +53,21 @@ export default function PatientProfilePage() {
         })
     }
 
+    const initials = `${profile.name?.[0] || ''}${profile.surname?.[0] || ''}`.toUpperCase() || 'P'
+
     return (
         <div className="max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold text-slate-900 mb-6">{t('profileTitle')}</h1>
+
+            <Card className="mb-6">
+                <CardContent className="pt-6">
+                    <AvatarUpload
+                        currentAvatarUrl={profile.avatar_url}
+                        initials={initials}
+                        onUploaded={(url) => setProfile({ ...profile, avatar_url: url })}
+                    />
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>
@@ -68,46 +81,23 @@ export default function PatientProfilePage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="name">{tc('name')}</Label>
-                                <Input
-                                    id="name"
-                                    name="name"
-                                    defaultValue={profile.name}
-                                    required
-                                />
+                                <Input id="name" name="name" defaultValue={profile.name} required />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="surname">{tc('surname')}</Label>
-                                <Input
-                                    id="surname"
-                                    name="surname"
-                                    defaultValue={profile.surname}
-                                    required
-                                />
+                                <Input id="surname" name="surname" defaultValue={profile.surname} required />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="year_of_birth">{t('yearOfBirth')}</Label>
-                                <Input
-                                    id="year_of_birth"
-                                    name="year_of_birth"
-                                    type="number"
-                                    defaultValue={profile.year_of_birth}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="weight">Weight (kg)</Label>
-                                <Input
-                                    id="weight"
-                                    name="weight"
-                                    type="number"
-                                    step="0.1"
-                                    defaultValue={profile.weight}
-                                    required
-                                />
-                            </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="year_of_birth">{t('yearOfBirth')}</Label>
+                            <Input
+                                id="year_of_birth"
+                                name="year_of_birth"
+                                type="number"
+                                defaultValue={profile.year_of_birth}
+                                required
+                            />
                         </div>
 
                         <div className="space-y-2">
@@ -121,9 +111,7 @@ export default function PatientProfilePage() {
                                 disabled
                                 className="bg-slate-50 text-slate-500"
                             />
-                            <p className="text-xs text-slate-400">
-                                {t('phoneReadonly')}
-                            </p>
+                            <p className="text-xs text-slate-400">{t('phoneReadonly')}</p>
                         </div>
 
                         <Button type="submit" disabled={isPending} className="w-full sm:w-auto">

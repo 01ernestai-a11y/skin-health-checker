@@ -10,7 +10,7 @@ export async function getPatientProfile() {
 
     const { data, error } = await supabase
         .from('patients')
-        .select('name, surname, year_of_birth, weight, phone_number')
+        .select('name, surname, year_of_birth, phone_number, avatar_url')
         .eq('id', user.id)
         .single()
 
@@ -29,7 +29,6 @@ export async function updatePatientProfile(formData: FormData) {
             name: formData.get('name') as string,
             surname: formData.get('surname') as string,
             year_of_birth: parseInt(formData.get('year_of_birth') as string),
-            weight: parseFloat(formData.get('weight') as string),
         })
         .eq('id', user.id)
 
@@ -46,7 +45,7 @@ export async function getDoctorProfile() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('name, surname, specialization, education, experience_years')
+        .select('name, surname, specialization, education, experience_years, avatar_url')
         .eq('id', user.id)
         .single()
 
@@ -74,4 +73,54 @@ export async function updateDoctorProfile(formData: FormData) {
 
     revalidatePath('/doctor/profile')
     return { success: true }
+}
+
+export async function updateAvatarUrl(avatarUrl: string) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
+
+    // Determine table from role
+    const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+    const role = roleData?.role
+    if (role === 'patient') {
+        const { error } = await supabase.from('patients').update({ avatar_url: avatarUrl }).eq('id', user.id)
+        if (error) return { error: error.message }
+    } else if (role === 'doctor') {
+        const { error } = await supabase.from('doctors').update({ avatar_url: avatarUrl }).eq('id', user.id)
+        if (error) return { error: error.message }
+    } else {
+        return { error: 'Avatar not supported for this role' }
+    }
+
+    revalidatePath('/patient/profile')
+    revalidatePath('/doctor/profile')
+    return { success: true }
+}
+
+export async function getMyAvatar() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { avatarUrl: null }
+
+    const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+
+    const role = roleData?.role
+    if (role === 'patient') {
+        const { data } = await supabase.from('patients').select('avatar_url, name, surname').eq('id', user.id).single()
+        return { avatarUrl: data?.avatar_url || null, name: data?.name, surname: data?.surname }
+    } else if (role === 'doctor') {
+        const { data } = await supabase.from('doctors').select('avatar_url, name, surname').eq('id', user.id).single()
+        return { avatarUrl: data?.avatar_url || null, name: data?.name, surname: data?.surname }
+    }
+    return { avatarUrl: null }
 }

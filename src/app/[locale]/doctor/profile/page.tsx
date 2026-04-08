@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
 import { Loader2, Stethoscope, GraduationCap, Briefcase } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import AvatarUpload from '@/components/AvatarUpload'
 
 export default function DoctorProfilePage() {
     const t = useTranslations('doctor')
@@ -53,9 +54,21 @@ export default function DoctorProfilePage() {
         })
     }
 
+    const initials = `${profile.name?.[0] || ''}${profile.surname?.[0] || ''}`.toUpperCase() || 'D'
+
     return (
         <div className="max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold text-slate-900 mb-6">{t('profileTitle')}</h1>
+
+            <Card className="mb-6">
+                <CardContent className="pt-6">
+                    <AvatarUpload
+                        currentAvatarUrl={profile.avatar_url}
+                        initials={initials}
+                        onUploaded={(url) => setProfile({ ...profile, avatar_url: url })}
+                    />
+                </CardContent>
+            </Card>
 
             <Card>
                 <CardHeader>

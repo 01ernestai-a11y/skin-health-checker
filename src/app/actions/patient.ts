@@ -97,7 +97,7 @@ export async function getAvailableDoctors() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('id, name, surname, specialization')
+        .select('id, name, surname, specialization, avatar_url')
         .order('name', { ascending: true })
 
     if (error) {
@@ -146,7 +146,7 @@ export async function getPatientChats() {
 
     const { data, error } = await supabase
         .from('chats')
-        .select('id, doctor_id, doctors!chats_doctor_id_fkey(name, surname, specialization), updated_at:created_at')
+        .select('id, doctor_id, doctors!chats_doctor_id_fkey(name, surname, specialization, avatar_url), updated_at:created_at')
         .eq('patient_id', user.id)
         .order('created_at', { ascending: false })
 
