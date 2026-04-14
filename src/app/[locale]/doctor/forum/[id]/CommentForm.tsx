@@ -6,16 +6,23 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { useFormStatus } from 'react-dom'
 import { useRef } from 'react'
-import { Send } from 'lucide-react'
+import { Send, Loader2 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 function SubmitButton() {
     const { pending } = useFormStatus()
+    const t = useTranslations('doctor')
     return (
         <Button type="submit" disabled={pending} className="bg-indigo-600 hover:bg-indigo-700 shrink-0">
-            {pending ? 'Posting...' : (
+            {pending ? (
                 <>
-                   <Send className="h-4 w-4 mr-2" />
-                   Reply
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    {t('replying')}
+                </>
+            ) : (
+                <>
+                    <Send className="h-4 w-4 mr-2" />
+                    {t('reply')}
                 </>
             )}
         </Button>
@@ -24,13 +31,14 @@ function SubmitButton() {
 
 export function CommentForm({ postId }: { postId: string }) {
     const formRef = useRef<HTMLFormElement>(null)
+    const t = useTranslations('doctor')
 
     async function action(formData: FormData) {
         const res = await createForumComment(formData)
         if (res.error) {
             toast.error(res.error)
         } else {
-            toast.success("Comment posted!")
+            toast.success(t('commentSuccess'))
             formRef.current?.reset()
         }
     }
@@ -41,7 +49,7 @@ export function CommentForm({ postId }: { postId: string }) {
             <Textarea
                 name="content"
                 required
-                placeholder="Share your professional insights or questions..."
+                placeholder={t('replyPlaceholder')}
                 className="flex-1 bg-white border-slate-300 resize-none rounded-lg"
                 rows={2}
             />
