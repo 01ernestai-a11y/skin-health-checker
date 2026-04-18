@@ -77,6 +77,11 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="space-y-2">
+                            <Label htmlFor="city">{tAuth('city')}</Label>
+                            <Input id="city" name="city" required defaultValue="Алматы" placeholder={tAuth('cityPlaceholder')} />
+                        </div>
+
+                        <div className="space-y-2">
                             <Label>{tAuth('phone')}</Label>
                             <PhoneInput value={phone} onChange={setPhone} />
                         </div>

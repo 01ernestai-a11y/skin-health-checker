@@ -45,7 +45,7 @@ export async function getDoctorProfile() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('name, surname, specialization, education, experience_years, avatar_url')
+        .select('name, surname, specialization, education, experience_years, city, avatar_url')
         .eq('id', user.id)
         .single()
 
@@ -66,6 +66,7 @@ export async function updateDoctorProfile(formData: FormData) {
             specialization: formData.get('specialization') as string,
             education: formData.get('education') as string,
             experience_years: parseInt(formData.get('experience_years') as string),
+            city: (formData.get('city') as string) || 'Алматы',
         })
         .eq('id', user.id)
 

@@ -1,7 +1,7 @@
 import { getVerifiedDoctors } from '@/app/actions/doctor'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Stethoscope, GraduationCap, Briefcase } from 'lucide-react'
+import { Stethoscope, GraduationCap, Briefcase, MapPin } from 'lucide-react'
 import { StartDoctorChatButton } from '@/components/StartDoctorChatButton'
 import { getTranslations } from 'next-intl/server'
 
@@ -70,6 +70,10 @@ export default async function ColleaguesPage() {
                                             {doctor.experience_years} {t('yearsExperience')}
                                         </p>
                                     )}
+                                    <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                                        <MapPin className="h-3 w-3" />
+                                        {doctor.city || 'Алматы'}
+                                    </p>
                                 </CardContent>
                                 <CardFooter className="pt-0">
                                     <StartDoctorChatButton doctorId={doctor.id} />

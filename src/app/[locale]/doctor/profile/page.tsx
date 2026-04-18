@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { toast } from 'sonner'
-import { Loader2, Stethoscope, GraduationCap, Briefcase } from 'lucide-react'
+import { Loader2, Stethoscope, GraduationCap, Briefcase, MapPin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import AvatarUpload from '@/components/AvatarUpload'
 
@@ -122,6 +122,19 @@ export default function DoctorProfilePage() {
                                 id="education"
                                 name="education"
                                 defaultValue={profile.education}
+                                required
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="city" className="flex items-center gap-1.5">
+                                <MapPin className="h-3.5 w-3.5" />
+                                {ta('city')}
+                            </Label>
+                            <Input
+                                id="city"
+                                name="city"
+                                defaultValue={profile.city}
                                 required
                             />
                         </div>

@@ -114,6 +114,7 @@ export async function signupDoctor(formData: FormData) {
     const specialization = formData.get('specialization') as string
     const education = formData.get('education') as string
     const experience_years = parseInt(formData.get('experience_years') as string, 10) || 0
+    const city = (formData.get('city') as string) || 'Алматы'
     const phone = formData.get('phone') as string
     const password = formData.get('password') as string
 
@@ -154,6 +155,7 @@ export async function signupDoctor(formData: FormData) {
             specialization,
             education,
             experience_years,
+            city,
             is_verified: false,
         })
 

@@ -97,7 +97,8 @@ export async function getAvailableDoctors() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('id, name, surname, specialization, avatar_url')
+        .select('id, name, surname, specialization, avatar_url, city')
+        .eq('is_verified', true)
         .order('name', { ascending: true })
 
     if (error) {

@@ -105,7 +105,7 @@ export async function getVerifiedDoctors() {
 
     const { data, error } = await supabase
         .from('doctors')
-        .select('id, name, surname, specialization, education, experience_years, avatar_url')
+        .select('id, name, surname, specialization, education, experience_years, avatar_url, city')
         .eq('is_verified', true)
         .neq('id', user.id)
         .order('name', { ascending: true })

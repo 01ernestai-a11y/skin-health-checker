@@ -9,6 +9,7 @@ export async function createDoctor(formData: FormData) {
     const specialization = formData.get('specialization') as string
     const education = formData.get('education') as string
     const experience_years = parseInt(formData.get('experience_years') as string, 10) || 0
+    const city = (formData.get('city') as string) || 'Алматы'
     const phone = formData.get('phone') as string
     const password = formData.get('password') as string
 
@@ -51,7 +52,8 @@ export async function createDoctor(formData: FormData) {
         specialization,
         education,
         experience_years,
-        is_verified: true, // Created by admin, so pre-verified
+        city,
+        is_verified: true,
     })
 
     if (docError) {

@@ -132,6 +132,13 @@ export default async function SignupPage({ searchParams }: { searchParams: { err
                                 </div>
 
                                 <div>
+                                    <label htmlFor="city-doc" className="block text-sm font-medium text-gray-700 mb-1">
+                                        {t('city')}
+                                    </label>
+                                    <Input id="city-doc" name="city" type="text" required defaultValue="Алматы" placeholder={t('cityPlaceholder')} />
+                                </div>
+
+                                <div>
                                     <label htmlFor="phone-doc" className="block text-sm font-medium text-gray-700">
                                         {t('phone')}
                                     </label>
